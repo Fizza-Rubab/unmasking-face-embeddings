@@ -6,7 +6,6 @@ import os
 import torch
 import sys
 import numpy as np
-import cv2
 from torchvision import transforms
 # from MagFace.inference.network_inf import builder_inf
 
@@ -72,6 +71,13 @@ def load_magface_model(ckpt_path, arch="iresnet100", embedding_size=512):
     args.embedding_size = embedding_size
     args.resume = ckpt_path
     args.cpu_mode = (DEVICE == "cpu")
+    try:
+        from MagFace.inference.network_inf import builder_inf
+    except ImportError as e:
+        raise ImportError(
+            "MagFace requires the MagFace repo on PYTHONPATH "
+            "(https://github.com/IrvingMeng/MagFace)."
+        ) from e
     model = builder_inf(args)
     model = model.to(DEVICE).eval()
     return model

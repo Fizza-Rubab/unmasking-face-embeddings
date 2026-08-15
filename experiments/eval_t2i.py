@@ -161,7 +161,8 @@ def gen(dec):
 def load_fr(spec, device):
     from ufe.model_loaders import load_model_by_repo_id
     repo, path = spec
-    return load_model_by_repo_id(repo, save_path=path, HF_TOKEN=None).to(device).eval()
+    token = os.environ.get("HF_TOKEN")
+    return load_model_by_repo_id(repo, save_path=path, HF_TOKEN=token).to(device).eval()
 
 
 def metrics():

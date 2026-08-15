@@ -23,6 +23,7 @@ from PIL import Image
 from torchvision import transforms as T
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+HF_TOKEN = os.environ.get("HF_TOKEN")     # required for the gated CVLface face models
 B = 64
 KHUB = os.path.join(CACHE_ROOT, "kagglehub", "datasets")
 FACE = {
@@ -177,7 +178,7 @@ def main():
     from ufe.model_loaders import load_model_by_repo_id
     for name, (repo, path) in FACE.items():
         try:
-            m = load_model_by_repo_id(repo, save_path=path, HF_TOKEN=None).eval()
+            m = load_model_by_repo_id(repo, save_path=path, HF_TOKEN=HF_TOKEN).eval()
             run_model(name, lambda ims, m=m: m(torch.stack([proc_face(i) for i in ims]).to(m.device)).cpu().numpy(),
                       paths, save_dir)
             del m; torch.cuda.empty_cache()
@@ -186,8 +187,8 @@ def main():
 
     if not WANT or "kprpe" in WANT:
         try:
-            km = load_model_by_repo_id(KPRPE[0], save_path=KPRPE[1], HF_TOKEN=None).to(DEVICE).eval()
-            ka = load_model_by_repo_id(KPRPE_ALIGNER[0], save_path=KPRPE_ALIGNER[1], HF_TOKEN=None).to(DEVICE).eval()
+            km = load_model_by_repo_id(KPRPE[0], save_path=KPRPE[1], HF_TOKEN=HF_TOKEN).to(DEVICE).eval()
+            ka = load_model_by_repo_id(KPRPE_ALIGNER[0], save_path=KPRPE_ALIGNER[1], HF_TOKEN=HF_TOKEN).to(DEVICE).eval()
 
             def embed_kprpe(ims):
                 x = torch.stack([proc_face(i) for i in ims]).to(DEVICE)
