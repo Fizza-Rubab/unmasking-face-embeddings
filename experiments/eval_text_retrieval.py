@@ -72,7 +72,7 @@ def encode_text(ftag, prompts):
     return l2(np.concatenate(out))
 
 
-# ---------------------------------------------------------------- datasets
+# datasets
 def utk_queries():
     meta = np.load("embeddings/utk/utk_metadata.npy")
     age, gender, race = meta["age"], meta["gender"], meta["race"]

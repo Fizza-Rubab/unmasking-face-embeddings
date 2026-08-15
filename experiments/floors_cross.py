@@ -8,7 +8,7 @@ from sklearn.metrics import average_precision_score
 import eval_naming as en
 import eval_text_retrieval as rt
 
-# ---------- NAMING floors on LFW test (CLIP) ----------
+# NAMING floors on LFW test (CLIP)
 LFW = "embeddings/lfw"
 lmeta = np.load(f"{LFW}/lfw_metadata.npy", allow_pickle=True)
 lids = np.array([int(r["identity"]) for r in lmeta])
@@ -39,7 +39,7 @@ print(f"  native    top1 {nat[0]:6.2f}  top5 {nat[1]:6.2f}")
 print(f"  unaligned top1 {un[0]:6.2f}  top5 {un[1]:6.2f}")
 print(f"  random    top1 {rn[0]:6.2f}  top5 {rn[1]:6.2f}")
 
-# ---------- RETRIEVAL floors on UTK test (CLIP) ----------
+# RETRIEVAL floors on UTK test (CLIP)
 u_dir, u_n, Qs, u_id = rt.utk_queries()
 
 def img_split(n, idents):

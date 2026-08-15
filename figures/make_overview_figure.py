@@ -112,7 +112,7 @@ def main():
     gen_fp = f"eval_out/t2i/kandinsky/bridged-kprpe/{hero_local:03d}.jpg"
     gen_im = Image.open(gen_fp).convert("RGB").resize((224, 224))
 
-    # ---------------------------------------------------------------- layout
+    # layout
     fig = plt.figure(figsize=(7.2, 2.7))
 
     def axat(x, y, w, h):

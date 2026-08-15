@@ -155,12 +155,12 @@ def main():
         print(f"\n=== target {ftag} ===  (chance top-1 = {100/n_names:.2f}%)")
         for lbl, (E_te, E_tr) in variants.items():
             Ec = l2(E_te - E_tr.mean(0))
-            # ---- closed set on the 500-name vocab
+            # closed set on the 500-name vocab
             Tc = l2(Tfull[:n_names] - Tfull[:n_names].mean(0))
             S = Ec @ Tc.T
             t1, t5, t10 = topk_stats(S, gt)
 
-            # ---- open-set watchlist (half the test ids)
+            # open-set watchlist (half the test ids)
             r2 = np.random.RandomState(SEED)
             wl_ids = set(r2.permutation(te_ids)[:len(te_ids)//2])
             vocab = np.array(sorted(i - 1 for i in wl_ids))
@@ -176,7 +176,7 @@ def main():
                   f"DIR@1% {100*d1:5.1f} DIR@10% {100*d10:5.1f} AUROC {au:.3f}")
             rows.append((ftag, lbl, t1, t5, t10, 100*d1, 100*d10, au))
 
-            # ---- vocab-size ablation
+            # vocab-size ablation
             for V in VOCAB_SIZES:
                 Tv = l2(Tfull[:V] - Tfull[:V].mean(0))
                 ts = topk_stats(Ec @ Tv.T, gt)

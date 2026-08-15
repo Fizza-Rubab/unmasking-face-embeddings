@@ -157,7 +157,7 @@ def gen(dec):
         print(f"[{dec}] {var}: done")
 
 
-# ------------------------------------------------------------------ metrics
+# metrics
 def load_fr(spec, device):
     from ufe.model_loaders import load_model_by_repo_id
     repo, path = spec
@@ -171,7 +171,7 @@ def metrics():
     ids, rel, tr, te, pick = setup()
     origs = [Image.open(os.path.join(IMAGE_ROOT, rel[i])).convert("RGB") for i in pick]
 
-    # ---------- CLIP zero-shot attribute agreement + DINOv2 + LPIPS
+    # CLIP zero-shot attribute agreement + DINOv2 + LPIPS
     from transformers import CLIPModel, CLIPTokenizer, CLIPProcessor, AutoModel, AutoImageProcessor
     clip = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device).eval()
     ctok = CLIPTokenizer.from_pretrained("openai/clip-vit-base-patch32")
@@ -214,7 +214,7 @@ def metrics():
     orig_attr = attr_preds(clip_img(origs))
     orig_dino = dino_emb(origs)
 
-    # ---------- FR identity + genuine/impostor reference
+    # FR identity + genuine/impostor reference
     fr = {}
     proc_face = T.Compose([T.Resize((112, 112)), T.ToTensor(),
                            T.Normalize([0.5]*3, [0.5]*3)])
@@ -267,7 +267,7 @@ def metrics():
         del m
     torch.cuda.empty_cache()
 
-    # ---------- FID: each generated set vs 500 real CFP test faces
+    # FID: each generated set vs 500 real CFP test faces
     import tempfile, shutil
     from torch_fidelity import calculate_metrics
     real_dir = os.path.join(GEN_DIR, "_real")
@@ -321,7 +321,7 @@ def metrics():
         f.write("\\bottomrule\n\\end{tabular}\n")
     print(f"saved {OUT}/t2i_metrics.csv, tab_t2i.tex")
 
-    # ---------- qualitative grid figure: 6 ids x (orig + 4 variants) x 2 decoders
+    # qualitative grid figure: 6 ids x (orig + 4 variants) x 2 decoders
     TH = 200
     show_vars = ["native", "bridged-arcface", "unaligned", "random"]
     r = np.random.RandomState(3)

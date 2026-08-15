@@ -28,7 +28,7 @@ def main():
     te = te[:NMAX]
     device = "cuda"
 
-    # --- Arc2Face pipeline
+    # Arc2Face pipeline
     from diffusers import StableDiffusionPipeline, UNet2DConditionModel, DPMSolverMultistepScheduler
     from arc2face import CLIPTextModelWrapper, project_face_embs
     from insightface.app import FaceAnalysis

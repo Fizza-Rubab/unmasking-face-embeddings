@@ -105,7 +105,7 @@ def save(fig, name):
     print(f"saved figures/{name}.pdf")
 
 
-# ------------------------------------------------------------- 1. freeform
+# 1. freeform
 def fig_freeform(ids, rel, tr, te, src="arcface", name="fig_freeform_retrieval"):
     A, F, W, muA, muF = bridge_target(tr, src=src)
     bridged = l2((A[te] - muA) @ W + muF)
@@ -134,7 +134,7 @@ def fig_freeform(ids, rel, tr, te, src="arcface", name="fig_freeform_retrieval")
     save(fig, name)
 
 
-# ------------------------------------------------------------- 2. naming
+# 2. naming
 def fig_naming(ids, rel, tr, te):
     names = [ln.strip() for ln in open(NAMES_TXT) if ln.strip()]
     A, F, W, muA, muF = bridge_target(tr, src="kprpe")   # best bridged source
@@ -163,7 +163,7 @@ def fig_naming(ids, rel, tr, te):
     save(fig, "fig_naming")
 
 
-# ------------------------------------------------------------- 3. t2i grid
+# 3. t2i grid
 def fig_t2i():
     GEN = "eval_out/t2i"
     N = 60

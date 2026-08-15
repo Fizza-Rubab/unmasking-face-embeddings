@@ -52,7 +52,7 @@ CELEBA_SUBSET = 40000     # random subset (202k is overkill for probing/text-AP)
 WANT = set(sys.argv[2:])  # optional: `embed_dataset.py <ds> clip kprpe` -> embed only these models
 
 
-# ---------------------------------------------------------------- datasets
+# datasets
 def load_cfp():
     # index the 10 frontal images per identity (5,000 images, 500 identities)
     root = os.path.expanduser(
@@ -151,7 +151,7 @@ def load_lfw():
 LOADERS = {"cfp": load_cfp, "utk": load_utk, "celeba": load_celeba, "lfw": load_lfw}
 
 
-# ---------------------------------------------------------------- embedding
+# embedding
 def run_model(name, embed_batch, paths, save_dir):
     if WANT and name not in WANT:
         return

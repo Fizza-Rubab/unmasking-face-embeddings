@@ -19,7 +19,7 @@ OUT = "eval_out"
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    # ---- LFW names + identity-disjoint 70/30 split (seed 42, matches within-LFW run)
+    # LFW names + identity-disjoint 70/30 split (seed 42, matches within-LFW run)
     lmeta = np.load(f"{LFW}/lfw_metadata.npy", allow_pickle=True)
     lids = np.array([int(r["identity"]) for r in lmeta])
     lnames = [None] * lids.max()
@@ -39,7 +39,7 @@ def main():
     inl = np.array([g in set(vocab) for g in gt])
     print(f"LFW test probes={len(lte)} names={n_names} chance={100/n_names:.3f}%", flush=True)
 
-    # ---- CFP arrays (all, for cross-dataset fit)
+    # CFP arrays (all, for cross-dataset fit)
     cfp = {s: l2(np.load(f"{CFP}/{s}.npy")) for s in SOURCES}
     cfp_found = {t: l2(np.load(f"{CFP}/{t}.npy")) for t in TARGETS}
     lfw_src = {s: l2(np.load(f"{LFW}/{s}.npy")) for s in SOURCES}
