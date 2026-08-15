@@ -6,48 +6,18 @@ Generative Models in Biometrics (FoundGen),
 Fizza Rubab, Yiying Tong, Arun Ross (Michigan State University).
 
 A single linear map, estimated once from paired embeddings, aligns a face-recognition
-(FR) model with an off-the-shelf foundation model. Once aligned, a face embedding can be
-**read** with free-form text, **rendered** into a face image by an unmodified diffusion
-decoder, and **named** against a text vocabulary of candidate names, all without training
-or modifying either model.
-
----
-
-## What this repository contains
-
-Code to reproduce the experiments in the paper:
-
-1. **Extract** embeddings for each model on each dataset (`extraction/`).
-2. **Align** an FR space with a foundation space by a mean-centered linear map (`ufe/align.py`).
-3. **Evaluate** the three capabilities (retrieval, embedding-to-image, and naming), plus
-   the cross-dataset, web-exposure, and robustness analyses (`experiments/`).
-4. **Render** the paper figures (`figures/`).
-
-
----
+model with an off-the-shelf foundation model. Once aligned, a face embedding can be read
+with free-form text, rendered into a face image by an unmodified diffusion decoder, and
+named against a text vocabulary, without training or modifying either model.
 
 ## Repository structure
 
 ```
-ufe/               # importable library (installed with `pip install -e .`)
-  align.py         #   the linear map: LinearAlignment.fit / .transform (paper Eq. 1)
-  model_loaders.py #   CVLface / MagFace checkpoint loaders
-extraction/        # embed_dataset.py (all datasets) + crop_lfw.py  (-> embeddings/<ds>/<model>.npy)
-experiments/       # retrieval, generation, naming, cross-dataset, exposure, ablations
-figures/           # overview + qualitative montages + result plots
+ufe/               importable library (pip install -e .): the linear map + model loaders
+extraction/        embed_dataset.py (all datasets), crop_lfw.py
+experiments/       retrieval, generation, naming, cross-dataset, exposure, ablations
+figures/           overview, qualitative montages, result plots
 ```
-
-At runtime the code also uses these git-ignored folders (create or symlink them):
-
-```
-data/          # raw datasets (see "Datasets")
-checkpoints/   # optional MagFace weights
-embeddings/    # generated: embeddings/<dataset>/<model>.npy  (+ <dataset>_metadata.npy)
-eval_out/      # generated: per-experiment CSV outputs
-.cache/        # Hugging Face / kagglehub cache (HF_HOME)
-```
-
----
 
 ## Installation
 
@@ -59,112 +29,59 @@ pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorc
 pip install -r requirements.txt
 ```
 
-If you only run the alignment/evaluation on existing embeddings, `pip install -e .` is enough.
-
----
+`pip install -e .` alone is enough to run the evaluations on existing embeddings.
 
 ## Datasets
 
-| Dataset | Used for | Notes |
-|---|---|---|
-| CFP | naming, embedding-to-image | 500 named celebrities, 10 frontal images/identity |
-| UTKFace | text-to-face retrieval | age/gender/ethnicity labels |
-| CelebA | text-to-face retrieval | 40 binary attributes |
-| LFW | cross-dataset naming, web-exposure | 5,749 named identities |
+| Dataset | Used for |
+|---|---|
+| CFP | naming, embedding-to-image |
+| UTKFace | text-to-face retrieval |
+| CelebA | text-to-face retrieval |
+| LFW | cross-dataset naming, web exposure |
 
 Datasets download to the Hugging Face / kagglehub cache under `.cache/`; the per-dataset
-loaders in `extraction/embed_dataset.py` point at those cache paths. Splits are
-identity-disjoint wherever identity labels exist.
+loaders in `extraction/embed_dataset.py` point at those paths.
 
-## Models (paper Table 1)
+## Models
 
-Face-specific weights come from [CVLface](https://github.com/mk-minchul/CVLface) (gated:
-set `export HF_TOKEN=...`); foundation models load from Hugging Face `transformers` /
-`diffusers`. None of the foundation targets is face-tuned.
+Face weights come from CVLface (gated: `export HF_TOKEN=...`); foundation models load from
+Hugging Face `transformers` / `diffusers` (paper Table 1). None of the foundation targets is
+face-tuned.
 
-- **Face (source):** ArcFace (ir101, WebFace4M), AdaFace (ir101, MS1MV2),
-  AdaFace-ViT (ViT-B, WebFace4M), KPRPE (ViT-B, WebFace4M)
-- **Foundation (target):** CLIP ViT-B/32, MetaCLIP ViT-B/32, SigLIP ViT-B/16,
-  Kandinsky 2.2 (CLIP ViT-bigG), Stable unCLIP (CLIP ViT-H)
-- **Reference only:** DINOv2 ViT-B/14 (appearance metric), Arc2Face (face-native decoder)
-
----
+Face: ArcFace, AdaFace, AdaFace-ViT, KPRPE.
+Foundation: CLIP, MetaCLIP, SigLIP, Kandinsky 2.2, Stable unCLIP; DINOv2 (metric only).
 
 ## Pipeline
 
-Run everything **from the repository root**.
-
-### 1. Extract embeddings
+Run from the repository root.
 
 ```bash
-export HF_TOKEN=...                        # gated CVLface face models
-python extraction/embed_dataset.py cfp     # -> embeddings/cfp/<model>.npy
-python extraction/embed_dataset.py utk     # -> embeddings/utk/<model>.npy
-python extraction/embed_dataset.py celeba  # -> embeddings/celeba/<model>.npy
-python extraction/crop_lfw.py              # LFW: central-crop the funneled frames first
-python extraction/embed_dataset.py lfw     # -> embeddings/lfw/<model>.npy
+export HF_TOKEN=...
+python extraction/embed_dataset.py cfp
+python extraction/embed_dataset.py utk
+python extraction/embed_dataset.py celeba
+python extraction/crop_lfw.py
+python extraction/embed_dataset.py lfw
+
+python experiments/eval_text_retrieval.py
+python experiments/eval_t2i.py
+python experiments/eval_naming.py
+
+python figures/make_overview_figure.py
 ```
 
-Each writes `embeddings/<dataset>/<dataset>_metadata.npy` (per-image identity/path records,
-row-aligned with the embeddings). Extraction is resumable and skips any `<model>.npy` that
-already exists.
-
-### 2. Run experiments
-
-```bash
-# Reading: text-to-face retrieval (Table 2)
-python experiments/eval_text_retrieval.py        # full grid, single split
-python experiments/eval_text_retrieval_ms.py     # 5 splits -> reported mean +/- std
-
-# Rendering: embedding-to-image (Table 3, Fig 3)
-python experiments/eval_t2i.py                   # quantitative + qualitative grid
-python experiments/gen_t2i_one.py <decoder> <variant>   # full 1500-image generation
-python experiments/metrics_t2i_full.py           # attr / DINOv2 / LPIPS / FID / id-cos
-python experiments/gen_arc2face.py               # Arc2Face face-native reference row
-
-# Naming (Table 4, Fig 4)
-python experiments/eval_naming.py                # top-k, open-set, vocab-size ablation
-python experiments/eval_naming_ms.py             # 5 splits -> reported mean +/- std
-python experiments/eval_naming_extra_ms.py       # matched-CNN + vocab ablation (5 splits)
-
-# Cross-dataset transfer (Table 5) and web exposure (Table 6)
-python experiments/eval_naming_crossds.py        # naming CFP -> LFW
-python experiments/eval_retrieval_crossds.py     # retrieval CelebA <-> UTK
-python experiments/floors_cross.py               # native / random / unaligned floors
-python experiments/eval_naming_exposure.py       # naming vs. images-per-identity
-
-# Supporting claims
-python experiments/eval_ridge_ablation.py        # unregularized vs. ridge (Method)
-python experiments/eval_utk_leakage.py           # identity-disjoint re-check (Setup)
-```
-
-Outputs are written as CSV under `eval_out/`.
-
-### 3. Figures
-
-```bash
-python figures/make_overview_figure.py     # Fig 1  overview
-python figures/fig_freeform_retrieval.py   # Fig 2  free-form retrieval montage
-python figures/make_paper_figures.py       # Fig 4  naming-vs-vocabulary plot
-python figures/make_montage_figures.py     # Fig 5  naming montage
-```
-
----
-
-## The alignment API (`ufe/align.py`)
+## Alignment API
 
 ```python
 from ufe import LinearAlignment, l2
 
 algo = LinearAlignment()
-algo.fit(A_train, C_train)     # A: face embeddings, C: foundation embeddings (paired)
-C_hat = algo.transform(A_test) # align held-out face embeddings into the foundation space
-# then apply any foundation head (text scoring, a diffusion decoder, name matching) to C_hat
+algo.fit(A_train, C_train)
+C_hat = algo.transform(A_test)
 ```
 
----
-
-## Scripts and paper artifacts
+## Scripts and analysis
 
 | Paper artifact | Script(s) |
 |---|---|
@@ -175,9 +92,7 @@ C_hat = algo.transform(A_test) # align held-out face embeddings into the foundat
 | Table 6: web exposure | `experiments/eval_naming_exposure.py` |
 | Method: unregularized map | `experiments/eval_ridge_ablation.py` |
 | Setup: UTK leakage check | `experiments/eval_utk_leakage.py` |
-| Fig 1 / Fig 2 / Fig 5: qualitative | `figures/make_overview_figure.py`, `fig_freeform_retrieval.py`, `make_montage_figures.py` |
-
----
+| Figures 1, 2, 5 | `figures/make_overview_figure.py`, `fig_freeform_retrieval.py`, `make_montage_figures.py` |
 
 ## Citation
 
