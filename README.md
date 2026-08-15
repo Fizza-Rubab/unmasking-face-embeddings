@@ -8,7 +8,7 @@ Fizza Rubab, Yiying Tong, Arun Ross (Michigan State University).
 A single linear map, estimated once from paired embeddings, aligns a face-recognition
 (FR) model with an off-the-shelf foundation model. Once aligned, a face embedding can be
 **read** with free-form text, **rendered** into a face image by an unmodified diffusion
-decoder, and **named** against a text vocabulary of candidate names — all without training
+decoder, and **named** against a text vocabulary of candidate names, all without training
 or modifying either model.
 
 ---
@@ -19,7 +19,7 @@ Code to reproduce the experiments in the paper:
 
 1. **Extract** embeddings for each model on each dataset (`extraction/`).
 2. **Align** an FR space with a foundation space by a mean-centered linear map (`ufe/align.py`).
-3. **Evaluate** the three capabilities — retrieval, embedding-to-image, and naming — plus
+3. **Evaluate** the three capabilities (retrieval, embedding-to-image, and naming), plus
    the cross-dataset, web-exposure, and robustness analyses (`experiments/`).
 4. **Render** the paper figures (`figures/`).
 
@@ -54,11 +54,9 @@ eval_out/      # generated: per-experiment CSV outputs
 ```bash
 conda create -n ufe python=3.11 -y
 conda activate ufe
-pip install -e .                 # the `ufe` package + core deps
-
-# Install torch matched to your CUDA version before the rest (extraction + generation).
+pip install -e .
 pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu126
-pip install -r requirements.txt  # transformers, diffusers, lpips, etc.
+pip install -r requirements.txt
 ```
 
 If you only run the alignment/evaluation on existing embeddings, `pip install -e .` is enough.
@@ -80,7 +78,7 @@ identity-disjoint wherever identity labels exist.
 
 ## Models (paper Table 1)
 
-Face-specific weights come from [CVLface](https://github.com/mk-minchul/CVLface) (gated —
+Face-specific weights come from [CVLface](https://github.com/mk-minchul/CVLface) (gated:
 set `export HF_TOKEN=...`); foundation models load from Hugging Face `transformers` /
 `diffusers`. None of the foundation targets is face-tuned.
 
@@ -114,11 +112,11 @@ already exists.
 ### 2. Run experiments
 
 ```bash
-# Reading -- text-to-face retrieval (Table 2)
+# Reading: text-to-face retrieval (Table 2)
 python experiments/eval_text_retrieval.py        # full grid, single split
 python experiments/eval_text_retrieval_ms.py     # 5 splits -> reported mean +/- std
 
-# Rendering -- embedding-to-image (Table 3, Fig 3)
+# Rendering: embedding-to-image (Table 3, Fig 3)
 python experiments/eval_t2i.py                   # quantitative + qualitative grid
 python experiments/gen_t2i_one.py <decoder> <variant>   # full 1500-image generation
 python experiments/metrics_t2i_full.py           # attr / DINOv2 / LPIPS / FID / id-cos
@@ -170,14 +168,14 @@ C_hat = algo.transform(A_test) # align held-out face embeddings into the foundat
 
 | Paper artifact | Script(s) |
 |---|---|
-| Table 2 — retrieval | `experiments/eval_text_retrieval.py`, `eval_text_retrieval_ms.py` |
-| Table 3 / Fig 3 — embedding-to-image | `experiments/eval_t2i.py`, `gen_t2i_one.py`, `metrics_t2i_full.py`, `gen_arc2face.py` |
-| Table 4 / Fig 4 — naming | `experiments/eval_naming.py`, `eval_naming_ms.py`, `eval_naming_extra_ms.py`, `figures/make_paper_figures.py` |
-| Table 5 — cross-dataset | `experiments/eval_naming_crossds.py`, `eval_retrieval_crossds.py`, `floors_cross.py` |
-| Table 6 — web exposure | `experiments/eval_naming_exposure.py` |
-| Method — unregularized map | `experiments/eval_ridge_ablation.py` |
-| Setup — UTK leakage check | `experiments/eval_utk_leakage.py` |
-| Fig 1 / Fig 2 / Fig 5 — qualitative | `figures/make_overview_figure.py`, `fig_freeform_retrieval.py`, `make_montage_figures.py` |
+| Table 2: retrieval | `experiments/eval_text_retrieval.py`, `eval_text_retrieval_ms.py` |
+| Table 3 / Fig 3: embedding-to-image | `experiments/eval_t2i.py`, `gen_t2i_one.py`, `metrics_t2i_full.py`, `gen_arc2face.py` |
+| Table 4 / Fig 4: naming | `experiments/eval_naming.py`, `eval_naming_ms.py`, `eval_naming_extra_ms.py`, `figures/make_paper_figures.py` |
+| Table 5: cross-dataset | `experiments/eval_naming_crossds.py`, `eval_retrieval_crossds.py`, `floors_cross.py` |
+| Table 6: web exposure | `experiments/eval_naming_exposure.py` |
+| Method: unregularized map | `experiments/eval_ridge_ablation.py` |
+| Setup: UTK leakage check | `experiments/eval_utk_leakage.py` |
+| Fig 1 / Fig 2 / Fig 5: qualitative | `figures/make_overview_figure.py`, `fig_freeform_retrieval.py`, `make_montage_figures.py` |
 
 ---
 
