@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ufe"
+version = "0.1.0"
+description = "Unmasking Face Embeddings: Reading, Rendering and Naming with Foundation Models (ECCV Workshops 2026)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+dependencies = [
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "matplotlib",
+    "tqdm",
+]
+
+[tool.setuptools]
+packages = ["ufe"]
