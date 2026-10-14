@@ -77,9 +77,27 @@ python figures/make_overview_figure.py
 from ufe import LinearAlignment, l2
 
 algo = LinearAlignment()
-algo.fit(A_train, C_train)
-C_hat = algo.transform(A_test)
+algo.fit(l2(A_train), C_train)           # source L2-normalised, target raw
+C_hat = l2(algo.transform(l2(A_test)))
 ```
+
+`fit` mean-centres both spaces and solves an unregularised least-squares system.
+It does not normalise anything for you. The experiment scripts apply the
+following, and results degrade noticeably without them:
+
+- **L2-normalise the source** before `fit` and `transform`. Face templates carry
+  a magnitude that varies with image quality, so leaving it in weights the fit
+  towards high-norm samples.
+- **Leave the target raw.** `fit` subtracts its training mean and `transform`
+  adds it back.
+- **L2-normalise the output** before any cosine or retrieval score.
+- **Embed both models from the same image.** The map cannot recover context the
+  source encoder never saw, so pairing a tight crop for the face model with a
+  wider crop for the foundation model degrades every downstream task.
+- **Fit on data that covers the faces you will apply the map to.** Alignment
+  quality for an individual drops sharply when the paired data contains nobody
+  comparable, which shows up as a large reconstruction error for that person
+  while the population average looks healthy.
 
 ## Scripts and analysis
 

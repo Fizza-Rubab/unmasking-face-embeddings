@@ -7,7 +7,11 @@ def l2(x, eps=1e-12):
 
 
 class LinearAlignment:
-    """Mean-centered least-squares map from a source space to a target space."""
+    """Mean-centered least-squares map from a source space to a target space.
+
+    Expects an L2-normalised source and a raw target; neither is normalised
+    here. See the Alignment API section of the README.
+    """
 
     def __init__(self):
         self.W = None
